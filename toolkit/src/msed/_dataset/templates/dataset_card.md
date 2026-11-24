@@ -23,4 +23,4 @@ Tick-aligned trajectories recorded with [MSED](https://github.com/rifa-456/msed-
   and the `world.mp4` / `gui.mp4` videos. Frame `vision.world_frame.frame_index` of a tick is
   its frame in `world.mp4`.
 
-Column reference: https://msed-suite.readthedocs.io/en/latest/data-format/
+Column reference: https://msed-suite.readthedocs.io/en/latest/columns/

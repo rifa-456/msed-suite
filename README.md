@@ -39,7 +39,7 @@ maps every id to its name.
    Then put two files in your `mods` folder: the MSED jar from the
    [latest release](https://github.com/rifa-456/msed-suite/releases/latest), and
    [`fabric-api-0.141.1+1.21.11.jar`](https://github.com/FabricMC/fabric-api/releases/download/0.141.1%2B1.21.11/fabric-api-0.141.1%2B1.21.11.jar),
-   the library it needs. [Recording](https://msed-suite.readthedocs.io/recording/) has the steps
+   the library it needs. [Recording](https://msed-suite.readthedocs.io/en/latest/recording/) has the steps
    for each system.
 2. Install FFmpeg for the videos: `winget install ffmpeg` on Windows, `brew install ffmpeg` on
    macOS, or your distribution's package on Linux. Without it, MSED records everything except
