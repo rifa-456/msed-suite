@@ -5,7 +5,7 @@
 
 [![CI](https://github.com/rifa-456/msed-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/rifa-456/msed-suite/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/msed)](https://pypi.org/project/msed/)
-[![Docs](https://readthedocs.org/projects/msed-suite/badge/?version=latest)](https://msed-suite.readthedocs.io)
+[![Docs](https://img.shields.io/readthedocs/msed-suite?label=docs)](https://msed-suite.readthedocs.io)
 [![DOI](https://img.shields.io/badge/DOI-10.1109%2FCoG67430.2026.11778848-blue)](https://doi.org/10.1109/CoG67430.2026.11778848)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
