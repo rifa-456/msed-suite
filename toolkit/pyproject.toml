@@ -1,7 +1,7 @@
 [build-system]
 # grpcio-tools is pinned so the generated protobuf code is reproducible. 1.80.0 bundles
 # protoc 31.1, whose Python output runs on protobuf >= 6.31.1 (see dependencies).
-requires = ["hatchling>=1.25", "grpcio-tools==1.80.0"]
+requires = ["hatchling>=1.25", "grpcio-tools==1.85.3"]
 build-backend = "hatchling.build"
 
 [project]
@@ -44,7 +44,7 @@ msed = "msed.cli:main"
 [dependency-groups]
 dev = [
     # The build hook's own dependencies, so it can be linted and type-checked.
-    "grpcio-tools==1.80.0",
+    "grpcio-tools==1.85.3",
     "hatchling>=1.25",
     "import-linter>=2.1",
     "mypy>=1.13",
