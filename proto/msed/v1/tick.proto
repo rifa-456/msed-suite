@@ -1,0 +1,43 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/player.proto";
+import "msed/v1/vision.proto";
+import "msed/v1/action.proto";
+import "msed/v1/inventory.proto";
+import "msed/v1/gui.proto";
+import "msed/v1/hearing.proto";
+import "msed/v1/events.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// One game tick: the state at the end of the tick and everything that happened since the
+// previous one. The game runs 20 ticks per second. A modality the config turned off is unset or
+// empty.
+message TickData {
+    // The tick's number in the episode, starting at 1 and counting up by one.
+    int64 tick = 1;
+    // When the tick was collected, in seconds since the Unix epoch.
+    double timestamp = 2;
+    // What the player did: inputs, camera movement and held bindings.
+    ActionState action = 3;
+    // The player's state.
+    PlayerState player = 4;
+    // The player's slots.
+    InventoryState inventory = 5;
+    // Video frames, ray grids and visible blocks.
+    VisionState vision = 6;
+    // Sounds played.
+    HearingState hearing = 7;
+    // The open screen.
+    GuiState gui = 8;
+    // Events since the previous tick, in the order they happened.
+    repeated Event events = 9;
+}
+
+// The message each shard stores, one per tick, in length-delimited framing.
+message TickRecord {
+    // The tick.
+    TickData data = 1;
+}

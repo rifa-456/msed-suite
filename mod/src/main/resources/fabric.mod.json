@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "msed",
+  "version": "${version}",
+  "name": "MSED",
+  "description": "Engine-level multi-modal trajectory recording for Minecraft: tick-aligned structured state, actions, events and video for machine learning research.",
+  "authors": [
+    "Rafael da Silva Santos"
+  ],
+  "contact": {
+    "homepage": "https://github.com/rifa-456/msed-suite",
+    "sources": "https://github.com/rifa-456/msed-suite",
+    "issues": "https://github.com/rifa-456/msed-suite/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/msed/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "io.github.rifa456.msed.Msed"
+    ],
+    "client": [
+      "io.github.rifa456.msed.MsedClient"
+    ],
+    "modmenu": [
+      "io.github.rifa456.msed.config.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "msed.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "cloth-config": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}

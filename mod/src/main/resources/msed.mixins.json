@@ -1,0 +1,33 @@
+{
+  "required": true,
+  "package": "io.github.rifa456.msed.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "events.ItemEntityMixin",
+    "events.LivingEntityMixin",
+    "events.PlayerMixin",
+    "observation.AbstractContainerMenuAccessor",
+    "observation.FoodDataAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "action.KeyboardHandlerMixin",
+    "action.MouseHandlerMixin",
+    "debug.LevelRendererMixin",
+    "events.ClientAdvancementsMixin",
+    "events.LocalPlayerMixin",
+    "events.MinecraftMixin",
+    "events.MultiPlayerGameModeMixin",
+    "observation.AbstractContainerScreenAccessor",
+    "observation.MultiPlayerGameModeAccessor",
+    "observation.OptionInstanceMixin",
+    "observation.SoundManagerMixin",
+    "recording.GameRendererMixin",
+    "recording.ScreenMixin"
+  ]
+}

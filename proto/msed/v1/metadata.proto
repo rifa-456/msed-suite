@@ -1,0 +1,56 @@
+syntax = "proto3";
+package msed.v1;
+
+import "google/protobuf/timestamp.proto";
+import "msed/v1/common.proto";
+import "msed/v1/config.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// One shard file of the episode.
+message ShardInfo {
+    // File name in the episode folder, such as shard_0000.bin.
+    string file = 1;
+    // The first and last tick the shard holds.
+    int64 first_tick = 2;
+    // The last tick the shard holds.
+    int64 last_tick = 3;
+    // Size and SHA-256 of the file as written; a mismatch means it was truncated or changed.
+    int64 size_bytes = 4;
+    // SHA-256 digest of the file.
+    bytes sha256 = 5;
+}
+
+// metadata.json: the manifest of one episode, written when the recording stops.
+message EpisodeMetadata {
+    // The start time, yyyyMMdd_HHmmss_SSS in local time; also the episode folder's name.
+    string episode_id = 1;
+    // A random UUID for this recording.
+    string session_id = 2;
+    // An anonymous id for the player: kept across game restarts when the config enables it,
+    // new on each start otherwise.
+    string user_id = 3;
+    // Free text from the config, such as what the player was asked to do.
+    string task_description = 4;
+    // The game version, such as 1.21.11.
+    string minecraft_version = 5;
+    // Seed of the singleplayer world; unset when recording on a remote server, which never sends it.
+    optional int64 world_seed = 6;
+    // When the first tick was recorded.
+    google.protobuf.Timestamp start_time = 7;
+    // When the recording stopped.
+    google.protobuf.Timestamp end_time = 8;
+    // The config the episode was recorded with; edits during a recording do not change it.
+    MsedConfig recording_config = 9;
+    // In tick order.
+    repeated ShardInfo shards = 10;
+    // Video file names in the episode folder; empty when the stream was not recorded.
+    string world_video_path = 11;
+    // As world_video_path, for the GUI video.
+    string gui_video_path = 12;
+    // The longest length of each variable-length list in any tick of the episode.
+    repeated ObservationStat observation_stats = 13;
+    // SemVer of the MSED mod that wrote the episode. Readers accept the same major version.
+    string msed_version = 14;
+}

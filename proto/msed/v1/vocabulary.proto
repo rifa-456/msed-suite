@@ -1,0 +1,38 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/options.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// The names of one category's ids.
+message RegistryMap {
+    // Name of each id.
+    map<int32, string> entries = 1;
+}
+
+// vocabulary.json: the name of every id an episode can contain. Blocks, items, entities, sounds
+// and effects list every registry entry of the game; screens, semantic tags and events list the
+// values seen in the session.
+message EpisodeVocabulary {
+    // Every block of the game's registry.
+    RegistryMap blocks = 1;
+    // Every item of the game's registry.
+    RegistryMap items = 2;
+    // Every entity type of the game's registry.
+    RegistryMap entities = 3;
+    // Every sound event of the game's registry.
+    RegistryMap sounds = 4;
+    // The screens opened in the session.
+    RegistryMap screens = 5;
+    // Slot roles, damage types and advancements seen in the session.
+    RegistryMap semantic_tags = 6;
+    // The event kinds logged in the session.
+    RegistryMap events = 7;
+    // Every status effect of the game's registry.
+    RegistryMap effects = 8;
+    // The category of each tick field that holds ids, keyed by its path, such as
+    // "tick.player.equipped_items.main_hand_item_id".
+    map<string, Vocab> field_index = 9;
+}

@@ -1,0 +1,47 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/inventory.proto";
+import "msed/v1/options.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// One slot of a container screen.
+message GuiSlot {
+    // The slot's index in the screen's menu.
+    int32 index = 1;
+    // Top-left corner of the slot, in GUI-scaled pixels from the window's top-left.
+    int32 pixel_x = 2;
+    // As pixel_x, downward.
+    int32 pixel_y = 3;
+    // Unset when the slot is empty.
+    ItemStack item = 4;
+    // The slot's role in its screen, such as crafting_2x2_input or player_armor.
+    int32 semantic_tag_id = 5 [(vocab) = VOCAB_SEMANTIC_TAGS];
+}
+
+// The open screen. With no screen open, every field is at its default and is_open is false.
+message GuiState {
+    reserved 9;
+    reserved "screen_tag_id";
+
+    // Whether any screen is open.
+    bool is_open = 1;
+    // A container screen gets its menu type's registry id; any other screen the hash of its
+    // class's intermediary name, such as net.minecraft.class_408, which every install of this
+    // game version shares.
+    int32 screen_id = 2 [(vocab) = VOCAB_SCREENS];
+    // Mouse position in GUI-scaled pixels from the window's top-left.
+    int32 mouse_x = 3;
+    // As mouse_x, downward.
+    int32 mouse_y = 4;
+    // The stack held on the cursor; unset when the cursor holds nothing. Container screens only.
+    ItemStack cursor_item = 5;
+    // Every slot of the menu, in index order. Container screens only.
+    repeated GuiSlot slots = 6;
+    // The menu's data values, such as a furnace's burn and cook progress. Container screens only.
+    repeated int32 properties = 7;
+    // Index of the slot under the mouse; unset when there is none.
+    optional int32 hovered_slot_index = 8;
+}

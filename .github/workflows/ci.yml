@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # The release workflow runs these same checks and publishes their artifacts.
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mod:
+    name: Mod (build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mod
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      # Checks that gradle-wrapper.jar is an official Gradle release before running it.
+      - uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - run: ./gradlew build --no-daemon
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: msed-mod-jar
+          path: mod/build/libs/*.jar
+          if-no-files-found: error
+
+  toolkit-lint:
+    name: Toolkit (lint and types)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: toolkit
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      # The tools run at the versions in uv.lock; the job fails if the lock is out of date.
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked mypy
+      - run: uv run --locked pydoclint --config=pyproject.toml src
+      - run: uv run --locked lint-imports
+
+  toolkit-test:
+    name: Toolkit (py${{ matrix.python }}, ${{ matrix.os }}${{ matrix.lowest && ', lowest deps' || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        lowest: [false]
+        include:
+          - { os: windows-latest, python: "3.10", lowest: false }
+          - { os: windows-latest, python: "3.13", lowest: false }
+          - { os: macos-latest, python: "3.13", lowest: false }
+          # The oldest dependency versions pyproject.toml allows.
+          - { os: ubuntu-latest, python: "3.10", lowest: true }
+    defaults:
+      run:
+        working-directory: toolkit
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: ${{ matrix.python }}
+          activate-environment: true
+      - name: Install
+        run: uv pip install -e . pytest
+      - name: Pin lowest dependencies
+        if: matrix.lowest
+        run: uv pip install "protobuf==6.31.1" "pyarrow==16.0.0" "click==8.1.0" "packaging==24.0" "tqdm==4.66.0"
+      - run: pytest
+
+  toolkit-dist:
+    name: Toolkit (build and install wheel)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: toolkit
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - name: Build sdist and wheel
+        run: uv build
+      - name: Build the wheel again from the sdist alone
+        run: |
+          mkdir /tmp/from-sdist
+          tar -xzf dist/msed-*.tar.gz -C /tmp/from-sdist
+          uv build --wheel --out-dir /tmp/from-sdist/dist /tmp/from-sdist/msed-*/
+      - name: Smoke-test the installed wheel
+        run: |
+          uv venv /tmp/smoke
+          uv pip install --python /tmp/smoke dist/msed-*.whl
+          /tmp/smoke/bin/msed --version
+          /tmp/smoke/bin/python -c "from msed.v1 import tick_pb2"
+          /tmp/smoke/bin/python -c "import importlib.resources as r; r.files('msed._dataset').joinpath('templates/dataset_card.md').read_text()"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: msed-toolkit-dist
+          path: toolkit/dist/*
+          if-no-files-found: error
+
+  docs:
+    name: Docs (strict build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          python-version: "3.13"
+          activate-environment: true
+      - run: uv pip install -r docs/requirements.txt ./toolkit
+      - run: ruff check docs/hooks
+      - run: ruff format --check docs/hooks
+      - run: mkdocs build --strict

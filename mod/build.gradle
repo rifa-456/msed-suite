@@ -1,0 +1,139 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+    id 'com.google.protobuf' version '0.9.5'
+    id 'net.ltgt.errorprone' version '5.2.0'
+    id 'com.diffplug.spotless' version '8.12.0'
+    id 'idea'
+}
+
+import net.ltgt.gradle.errorprone.CheckSeverity
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven { url = 'https://maven.shedaniel.me/' }
+    maven { url = 'https://maven.terraformersmc.com/releases/' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // Cloth Config builds the settings screen and is bundled into the mod jar (jar-in-jar).
+    modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+        exclude(group: 'net.fabricmc.fabric-api')
+    }
+    include("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+        exclude(group: 'net.fabricmc.fabric-api')
+    }
+    // Optional: with Mod Menu installed, MSED also appears in its mod list.
+    modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+    modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+    // Bundled into the mod jar (jar-in-jar). Gson, Guava and SLF4J are provided by Minecraft.
+    implementation "com.google.protobuf:protobuf-java:${project.protobuf_version}"
+    implementation "com.google.protobuf:protobuf-java-util:${project.protobuf_version}"
+    implementation "com.github.kokorin.jaffree:jaffree:${project.jaffree_version}"
+    include "com.google.protobuf:protobuf-java:${project.protobuf_version}"
+    include "com.google.protobuf:protobuf-java-util:${project.protobuf_version}"
+    include "com.github.kokorin.jaffree:jaffree:${project.jaffree_version}"
+
+    compileOnly "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
+    // Gson and Guava carry these annotations; without them -Xlint:classfile warns.
+    compileOnly "com.google.errorprone:error_prone_annotations:${project.errorprone_version}"
+    testCompileOnly "com.google.errorprone:error_prone_annotations:${project.errorprone_version}"
+    errorprone "com.google.errorprone:error_prone_core:${project.errorprone_version}"
+    errorprone "com.uber.nullaway:nullaway:${project.nullaway_version}"
+
+    testImplementation platform("org.junit:junit-bom:${project.junit_version}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "com.tngtech.archunit:archunit-junit5:${project.archunit_version}"
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${project.protobuf_version}"
+    }
+}
+
+sourceSets {
+    main {
+        proto {
+            // The schema at the repository root, shared with the Python toolkit.
+            srcDir '../proto'
+        }
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    // Every compiler and Error Prone warning fails the build.
+    options.compilerArgs += ['-Xlint:all', '-Werror']
+    options.errorprone {
+        disableWarningsInGeneratedCode = true
+        excludedPaths = '.*/build/generated/.*'
+        check('NullAway', CheckSeverity.ERROR)
+        option('NullAway:AnnotatedPackages', 'io.github.rifa456.msed')
+        option('NullAway:UnannotatedSubPackages', 'io.github.rifa456.msed.proto')
+        // Mixin assigns @Shadow fields from the target class; Fabric calls the entrypoints first.
+        option('NullAway:ExcludedFieldAnnotations', 'org.spongepowered.asm.mixin.Shadow')
+        option('NullAway:KnownInitializers',
+                'net.fabricmc.api.ModInitializer.onInitialize,net.fabricmc.api.ClientModInitializer.onInitializeClient')
+        // Mixin calls these handlers through their annotation, with the target's full signature.
+        def mixinHandlers = [
+                'org.spongepowered.asm.mixin.injection.Inject',
+                'org.spongepowered.asm.mixin.injection.ModifyArg',
+                'org.spongepowered.asm.mixin.injection.ModifyVariable',
+                'org.spongepowered.asm.mixin.injection.Redirect',
+        ].join(',')
+        option('UnusedMethod:ExemptingMethodAnnotations', mixinHandlers)
+        option('Unused:methodAnnotationsExemptingParameters', mixinHandlers)
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        palantirJavaFormat(project.palantir_java_format_version)
+        removeUnusedImports()
+        formatAnnotations()
+    }
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
+
+idea {
+    module {
+        sourceDirs += file('../proto')
+        generatedSourceDirs += file('build/generated/source/proto/main/java')
+    }
+}

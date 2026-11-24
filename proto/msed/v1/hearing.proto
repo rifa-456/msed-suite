@@ -1,0 +1,28 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/options.proto";
+import "msed/v1/common.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// A sound dispatched by the game, recorded where the game requests it (before the audio engine),
+// so recordings do not depend on audio hardware or mixer state.
+message SoundEvent {
+    // -1 if the sound is not in the sound event registry.
+    int32 sound_id = 1 [(vocab) = VOCAB_SOUNDS];
+    // Volume the game requested, before the player's volume settings. 1 is a sound's normal
+    // volume; a larger value makes it heard from further away, as thunder's 10000 does.
+    float intensity = 2;
+    // World-space origin; listener-relative offset when `relative` is true.
+    Vec3 position = 3;
+    // True for sounds positioned relative to the listener (UI clicks, music).
+    bool relative = 4;
+}
+
+// Every sound dispatched since the previous tick.
+message HearingState {
+    // Every sound the game played since the previous tick, in the order it played them.
+    repeated SoundEvent sounds = 1;
+}

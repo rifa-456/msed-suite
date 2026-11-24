@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/rifa-456/msed-suite/discussions
+    about: Ask how to record or use a dataset, or propose a change.
+  - name: Security problem
+    url: https://github.com/rifa-456/msed-suite/security/advisories/new
+    about: Report a vulnerability privately.

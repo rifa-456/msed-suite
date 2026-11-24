@@ -1,0 +1,33 @@
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gradle / Fabric mod
+mod/.gradle/
+mod/build/
+mod/run/
+mod/src/main/resources/natives/
+
+# Python toolkit
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.ruff_cache/
+.import_linter_cache/
+
+# Local recordings and converted datasets
+/dataset/
+
+# Generated protobuf code (built from proto/ by toolkit/hatch_build.py)
+toolkit/src/msed/v1/
+
+# Documentation site output
+site/

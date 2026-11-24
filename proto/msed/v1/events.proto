@@ -1,0 +1,126 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/common.proto";
+import "msed/v1/options.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// An advancement the player completed. Advancements the game does not display, such as recipe
+// unlocks, are not recorded.
+message AdvancementEvent {
+    // The hash id of the advancement's name, such as minecraft:story/mine_stone.
+    int32 id = 1 [(vocab) = VOCAB_SEMANTIC_TAGS];
+}
+
+// A screen closed.
+message GuiClosedEvent {
+    reserved 2;
+    reserved "screen_tag_id";
+
+    // As GuiState.screen_id.
+    int32 screen_id = 1 [(vocab) = VOCAB_SCREENS];
+}
+
+// A screen opened.
+message GuiOpenedEvent {
+    reserved 2;
+    reserved "screen_tag_id";
+
+    // As GuiState.screen_id.
+    int32 screen_id = 1 [(vocab) = VOCAB_SCREENS];
+}
+
+// Items the player threw out, from the hotbar or from a screen.
+message ItemDroppedEvent {
+    // The item thrown.
+    int32 item_id = 1 [(vocab) = VOCAB_ITEMS];
+    // How many were thrown.
+    int32 count = 2;
+}
+
+// Items the player picked up; count is the amount that went into the inventory.
+message ItemPickedUpEvent {
+    // The item picked up.
+    int32 item_id = 1 [(vocab) = VOCAB_ITEMS];
+    // How many went into the inventory.
+    int32 count = 2;
+}
+
+// Food or drink the player finished.
+message PlayerAteEvent {
+    // The food or drink.
+    int32 item_id = 1 [(vocab) = VOCAB_ITEMS];
+}
+
+// Damage taken by the player.
+message EntityDamageEvent {
+    // Health (including absorption) actually lost, after armor and effects.
+    float amount = 1;
+    // Damage type, for example minecraft:fall; source_entity_id is the attacker's type, -1 if none.
+    int32 source_type_id = 2 [(vocab) = VOCAB_SEMANTIC_TAGS];
+    // The attacker's entity type; -1 when nothing attacked.
+    int32 source_entity_id = 3 [(vocab) = VOCAB_ENTITIES];
+}
+
+// The player died; the cause is the last damage taken, with ids -1 when unknown.
+message PlayerDeathEvent {
+    // The damage type of the last damage taken; -1 when unknown.
+    int32 source_type_id = 1 [(vocab) = VOCAB_SEMANTIC_TAGS];
+    // The entity type that dealt it; -1 when none or unknown.
+    int32 source_entity_id = 2 [(vocab) = VOCAB_ENTITIES];
+}
+
+// The player asked to respawn from the death screen.
+message PlayerRespawnEvent {}
+
+// The player fell asleep in a bed.
+message PlayerSleepEvent {
+    // The bed's block position in world coordinates.
+    Vec3i bed_pos = 1;
+}
+
+// A block broken by the player; pos is in world coordinates.
+message BlockBreakEvent {
+    // The block that was broken.
+    int32 block_id = 1 [(vocab) = VOCAB_BLOCKS];
+    // Its position in world coordinates.
+    Vec3i pos = 2;
+}
+
+// The record key stopped the recording; it is the last event of an episode that ended normally.
+message RecordingStoppedEvent {}
+
+// An asynchronous game event. It belongs to the first tick collected after it happened.
+message Event {
+    // Tick of the record the event is stored in.
+    int64 tick = 1;
+    oneof payload {
+        // An advancement completed.
+        AdvancementEvent advancement = 2;
+        // A screen closed.
+        GuiClosedEvent gui_closed = 3;
+        // A screen opened.
+        GuiOpenedEvent gui_opened = 4;
+        // Items thrown out.
+        ItemDroppedEvent item_dropped = 5;
+        // Items picked up. Singleplayer only: the game's own server reports it, and a remote server
+        // without MSED does not.
+        ItemPickedUpEvent item_picked_up = 6;
+        // Food or drink finished.
+        PlayerAteEvent player_ate = 7;
+        // Damage taken. Singleplayer only, like item_picked_up.
+        EntityDamageEvent damage = 8;
+        // The player died.
+        PlayerDeathEvent death = 9;
+        // A respawn was requested.
+        PlayerRespawnEvent respawn = 10;
+        // The player fell asleep.
+        PlayerSleepEvent sleep = 11;
+        // A block was broken.
+        BlockBreakEvent block_break = 12;
+        // The recording was stopped with the record key.
+        RecordingStoppedEvent stopped = 13;
+    }
+}

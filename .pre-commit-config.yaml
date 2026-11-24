@@ -1,0 +1,25 @@
+# Install once with `uvx pre-commit install`. CI runs the same checks; the Java formatting and
+# compile checks run in `./gradlew build`.
+exclude: ^toolkit/src/msed/v1/
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        # Windows batch files keep CRLF, as .gitattributes declares.
+        exclude: \.bat$
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        files: ^toolkit/
+      - id: ruff-format
+        files: ^toolkit/

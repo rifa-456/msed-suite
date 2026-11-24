@@ -1,0 +1,96 @@
+name: Release
+
+# Pushing a tag such as v1.0.0 runs every CI check, publishes the toolkit to PyPI, and creates a
+# GitHub release with the mod jar and the toolkit's wheel and sdist.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Check the tag against the versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Compare the tag with the mod, the toolkit and the changelog
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          mod="$(sed -n 's/^mod_version=//p' mod/gradle.properties)"
+          toolkit="$(sed -n 's/^version = "\(.*\)"$/\1/p' toolkit/pyproject.toml)"
+          echo "tag $tag, mod $mod, toolkit $toolkit"
+          if [ "$tag" != "$mod" ] || [ "$tag" != "$toolkit" ]; then
+            echo "::error::The tag must equal mod_version in mod/gradle.properties and version in toolkit/pyproject.toml."
+            exit 1
+          fi
+          if ! grep -q "^## \[$tag\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for $tag."
+            exit 1
+          fi
+
+  ci:
+    name: CI
+    needs: version
+    # GitHub resolves a job-level workflow call from the tagged commit before any runner starts,
+    # so the documented ./ form cannot pick up files changed during the run.
+    uses: ./.github/workflows/ci.yml # zizmor: ignore[self-repository]
+
+  pypi:
+    name: Publish the toolkit to PyPI
+    needs: ci
+    runs-on: ubuntu-latest
+    # PyPI trusts this workflow and environment (trusted publishing), so no token is stored.
+    environment:
+      name: pypi
+      url: https://pypi.org/project/msed/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: msed-toolkit-dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+
+  github:
+    name: Create the GitHub release
+    needs: pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: msed-mod-jar
+          path: assets
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: msed-toolkit-dist
+          path: assets
+      - name: Attest where the files were built
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: assets/*
+      - name: Take the release notes from the changelog
+        run: |
+          awk -v section="## [${GITHUB_REF_NAME#v}]" '
+            index($0, "## [") == 1 { keep = index($0, section) == 1; next }
+            /^\[[^]]+\]: / { keep = 0 }
+            keep
+          ' CHANGELOG.md > notes.md
+          cat notes.md
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME" assets/*
+          --verify-tag --title "MSED ${GITHUB_REF_NAME#v}" --notes-file notes.md

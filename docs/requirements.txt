@@ -1,0 +1,11 @@
+# The docs build: MkDocs with Material, the API reference from the toolkit's docstrings, and
+# protoc for the schema reference. The command line page also needs
+# the toolkit: pip install ./toolkit
+grpcio-tools==1.80.0
+mkdocs-click==0.9.0
+mkdocs==1.6.1
+mkdocs-material==9.8.2
+mkdocstrings-python==2.0.11
+mkdocstrings==1.0.8
+pymdown-extensions==13.1.2
+ruff==0.17.6

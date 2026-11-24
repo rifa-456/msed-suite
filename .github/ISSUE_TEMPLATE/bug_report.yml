@@ -1,0 +1,36 @@
+name: Bug report
+description: Something in the mod or the toolkit does not work as documented.
+labels: [bug]
+body:
+  - type: dropdown
+    id: part
+    attributes:
+      label: Part
+      options:
+        - Mod (recording)
+        - Toolkit (validate or convert)
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: OS, Minecraft, Fabric Loader, MSED, and Python for the toolkit.
+      placeholder: Windows 11, Minecraft 1.21.11, Fabric Loader 0.18.4, MSED 1.0.0, Python 3.12
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs and files
+      description: >-
+        For a recording problem, the episode's metadata.json and the output of msed validate.
+        For a crash, the game's latest.log.
+      render: text

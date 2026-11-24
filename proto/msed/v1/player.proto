@@ -1,0 +1,132 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/common.proto";
+import "msed/v1/options.proto";
+import "msed/v1/inventory.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// A status effect on the player.
+message ActiveEffect {
+    // The status effect.
+    int32 effect_id = 1 [(vocab) = VOCAB_EFFECTS];
+    // Level minus one: Speed II has amplifier 1.
+    int32 amplifier = 2;
+    // Ticks left until the effect ends.
+    int32 duration = 3;
+}
+
+// An entity within 16 blocks of the player's position.
+message NearbyEntity {
+    // The entity type.
+    int32 entity_id = 1 [(vocab) = VOCAB_ENTITIES];
+    // Offset from the player's position, in blocks.
+    Vec3 position = 2;
+    // Movement per tick, in blocks.
+    Vec3 velocity = 3;
+    // Degrees, as for the player.
+    float pitch = 4;
+    // Degrees, as for the player.
+    float yaw = 5;
+    // The stack a dropped item entity carries; unset for other entities.
+    ItemStack item_stack = 6;
+}
+
+message HungerState {
+    // 0 to 20; each drumstick in the HUD is 2.
+    int32 food_level = 1;
+    // 0 up to the food level; spent before food.
+    float saturation_level = 2;
+    // 0 to 4; reaching 4 takes one point of saturation or food.
+    float exhaustion = 3;
+}
+
+message AirSupplyState {
+    // Ticks of air left; drops under water and refills above it.
+    int32 current = 1;
+    // Ticks of air when full, 300 by default.
+    int32 max = 2;
+}
+
+message EquippedItems {
+    // 0 (air) for an empty hand.
+    int32 main_hand_item_id = 1 [(vocab) = VOCAB_ITEMS];
+    // 0 (air) for an empty offhand.
+    int32 off_hand_item_id = 2 [(vocab) = VOCAB_ITEMS];
+}
+
+message CombatState {
+    // Attack charge from 0 to 1, as the crosshair indicator shows it; 1 deals full damage.
+    float attack_cooldown = 1;
+    // The player's attack damage attribute, the held item's modifiers included.
+    float attack_damage = 2;
+}
+
+message EnvironmentState {
+    // Light at the player's block, 0 to 15, from the sky or from blocks, whichever is brighter.
+    int32 light_level = 1;
+    // The world's time of day, in ticks: 0 is sunrise, 6000 noon, 12000 sunset and 18000
+    // midnight. It counts up while the daylight cycle runs and is not wrapped, so take it modulo
+    // 24000 for the hour; /time set changes it.
+    int64 time_of_day = 2;
+}
+
+// The block the player mines, or the block under the crosshair.
+message MiningState {
+    // Whether the player is breaking a block this tick.
+    bool is_mining = 1;
+    // How far the block is broken, 0 to 1; set only while mining.
+    float progress = 2;
+    // Progress gained per tick on the targeted block with the held item.
+    float speed = 3;
+    // Whether breaking the targeted block with the held item drops it.
+    bool can_harvest = 4;
+    // Targeted block minus the player's block position; unset when no block is targeted.
+    Vec3i relative_target_pos = 5;
+}
+
+message PlayerState {
+    // Feet position in world coordinates, in blocks.
+    Vec3 position = 1;
+    // Movement per tick, in blocks.
+    Vec3 velocity = 2;
+    // Degrees: -90 looks straight up, 90 straight down.
+    float pitch = 3;
+    // Degrees: 0 faces south (+z), 90 west. Not wrapped to 0..360.
+    float yaw = 4;
+    // Whether the player stands on a block.
+    bool on_ground = 10;
+    // Whether the player sneaks.
+    bool sneaking = 11;
+    // Whether the player sprints.
+    bool sprinting = 12;
+    // Every status effect on the player.
+    repeated ActiveEffect active_effects = 13;
+    // Every entity within 16 blocks of the player, in the order the game's entity lookup
+    // returns them.
+    repeated NearbyEntity nearby_entities = 14;
+    // Progress to the next experience level, 0 to 1.
+    float xp_progress = 15;
+    // Blocks fallen since the player last stood on the ground.
+    float fall_distance = 16;
+    // Half hearts: 20 is full health without effects.
+    float health = 5;
+    // Armor points, 0 to 20.
+    int32 armor = 8;
+    // Experience level.
+    int32 xp_level = 9;
+    // Food, saturation and exhaustion.
+    HungerState hunger = 17;
+    // Air left under water.
+    AirSupplyState air_supply = 18;
+    // The items in both hands.
+    EquippedItems equipped_items = 19;
+    // Attack charge and damage.
+    CombatState combat = 20;
+    // Light level and time of day.
+    EnvironmentState environment = 21;
+    // The block being mined or targeted.
+    MiningState mining = 22;
+}

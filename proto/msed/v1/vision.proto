@@ -1,0 +1,71 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/common.proto";
+import "msed/v1/options.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// A grid of rays cast from the camera through the view, one per cell. Row 0 is the top and
+// column 0 the left, as in the video frames; cell (row, column) is element row * width + column of
+// each array.
+message RayGrid {
+    // Rays across.
+    int32 width = 1;
+    // Rays down.
+    int32 height = 2;
+    // The block each ray hit, as little-endian int32 ids; air (0) for a ray that hit nothing.
+    bytes block_id_raw = 3 [(vocab) = VOCAB_BLOCKS];
+    // Element type of block_id_raw: INT32.
+    DType block_id_dtype = 4;
+    // Distance from the camera to each hit, in blocks, as little-endian float32; -1 for a miss.
+    bytes distance_meters = 5;
+    // Element type of distance_meters: FLOAT32.
+    DType distance_dtype = 6;
+}
+
+// A block that at least one ray hit.
+message VisibleBlock {
+    // The block.
+    int32 block_id = 1 [(vocab) = VOCAB_BLOCKS];
+    // Block position minus the camera's block position.
+    int32 rel_x = 2;
+    // As rel_x, upward.
+    int32 rel_y = 3;
+    // As rel_x, southward.
+    int32 rel_z = 4;
+    // Distance from the camera to the nearest hit on this block, in blocks.
+    float distance = 5;
+}
+
+// Camera pose of the render that produced this tick's video frames. Minecraft applies mouse look
+// every frame and interpolates movement between ticks, so the rendered pose can differ slightly
+// from the tick's player state; this records exactly what the frames show.
+message RenderedCamera {
+    // Eye position in world coordinates, in blocks.
+    Vec3 position = 1;
+    // Degrees, as for the player.
+    float yaw = 2;
+    // Degrees, as for the player.
+    float pitch = 3;
+    // Interpolation factor between the previous tick (0) and this tick (1) used for the render.
+    float partial_tick = 4;
+}
+
+message VisionState {
+    // Rays that stop at the first block that blocks sight: glass, leaves, plants and fluids are
+    // seen through.
+    RayGrid non_transparent_rays = 1;
+    // Rays that stop at the first visible thing, glass and the surface of fluids included.
+    RayGrid transparent_rays = 2;
+    // Every block either grid hit, nearest first.
+    repeated VisibleBlock visible_blocks = 3;
+    // This tick's frame in the world-only video, drawn before the hand and the HUD.
+    VideoRef world_frame = 10;
+    // This tick's frame in the GUI video: the final image, HUD and open screens included.
+    VideoRef gui_frame = 11;
+    // The camera this tick's frames were rendered with. Unset when no frame was rendered for
+    // this tick and the previous frame was repeated.
+    RenderedCamera camera = 12;
+}

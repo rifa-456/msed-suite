@@ -1,0 +1,46 @@
+syntax = "proto3";
+package msed.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// The vocabulary category an id field's values come from.
+enum Vocab {
+    VOCAB_UNKNOWN = 0;
+    VOCAB_BLOCKS = 1;
+    VOCAB_ITEMS = 2;
+    VOCAB_ENTITIES = 3;
+    VOCAB_SOUNDS = 4;
+    VOCAB_SCREENS = 5;
+    VOCAB_SEMANTIC_TAGS = 6;
+    VOCAB_EVENTS = 7;
+    VOCAB_EFFECTS = 8;
+}
+
+// The element type of a raw little-endian array stored in a bytes field.
+enum DType {
+    reserved 3 to 5;
+
+    D_TYPE_UNSPECIFIED = 0;
+    D_TYPE_INT32 = 1;
+    D_TYPE_FLOAT32 = 2;
+}
+
+extend google.protobuf.FieldOptions {
+    // The smallest and largest value the config screen accepts for an int or float setting.
+    optional int32 min_int = 50001;
+    optional int32 max_int = 50002;
+    optional float min_float = 50003;
+    optional float max_float = 50004;
+    // Shows a config message as a collapsible group in the config screen.
+    optional bool collapsible = 50005;
+    // Marks an int field as an id from this vocabulary category; vocabulary.json maps it to names.
+    optional Vocab vocab = 50006;
+    // The value of a setting in a new config. A setting without one defaults to 0, false or empty.
+    optional int32 default_int = 50007;
+    optional float default_float = 50008;
+    optional bool default_bool = 50009;
+    optional string default_string = 50010;
+}

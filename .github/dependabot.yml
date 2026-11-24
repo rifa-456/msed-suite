@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: gradle
+    directory: /mod
+    schedule:
+      interval: monthly
+    ignore:
+      # Minecraft, Fabric and the mods built for them change together, by hand.
+      - dependency-name: "com.mojang:minecraft"
+      - dependency-name: "net.fabricmc*"
+      - dependency-name: "net.fabricmc.fabric-api*"
+      - dependency-name: "me.shedaniel.cloth*"
+      - dependency-name: "com.terraformersmc*"
+  - package-ecosystem: pip
+    directory: /toolkit
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directory: /docs
+    schedule:
+      interval: monthly

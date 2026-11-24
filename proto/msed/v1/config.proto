@@ -1,0 +1,159 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/options.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// The mod's settings, stored in config/msed.json and frozen for each recording. Each episode's
+// metadata keeps the settings it was recorded with.
+message MsedConfig {
+    // Where episodes are written.
+    FilesystemSettings filesystem = 1 [(collapsible) = true];
+    // The start countdown.
+    RecordingBehavior recording_behavior = 2 [(collapsible) = true];
+    // Video encoding.
+    FFmpegSettings ffmpeg = 3 [(collapsible) = true];
+    // Shard size and the writer queue.
+    AdvancedSettings advanced = 4 [(collapsible) = true];
+    // Video size and the ray grids.
+    VisionSettings vision = 5 [(collapsible) = true];
+    // Which modalities are recorded.
+    RecordingSettings recording = 6 [(collapsible) = true];
+    // What each episode's metadata records about the session.
+    MetadataSettings metadata = 7 [(collapsible) = true];
+}
+
+message FilesystemSettings {
+    // Folder the episodes are written to, relative to the game directory.
+    string dataset_root = 1 [(default_string) = "dataset"];
+}
+
+message RecordingBehavior {
+    // Countdown between the second press of the record key and the first recorded tick.
+    int32 grace_period_seconds = 1 [
+        (min_int) = 0,
+        (max_int) = 300,
+        (default_int) = 5
+    ];
+}
+
+message FFmpegSettings {
+    // Probe the encoders (hardware first) and use the first one that works on this machine.
+    bool auto_detect_hardware_codec = 1 [(default_bool) = true];
+    // Encoder used when auto-detection is off, for example "libx264".
+    string video_codec = 2 [(default_string) = "libx264"];
+    // Value for -preset when auto-detection is off; empty to omit.
+    string preset = 3 [(default_string) = "ultrafast"];
+    // Frame rate written to the videos. At 20, one frame lasts one tick.
+    int32 fps = 4 [(min_int) = 1, (default_int) = 20];
+    // Path to the ffmpeg executable. Empty: search PATH and common install locations.
+    string executable = 5;
+}
+
+message AdvancedSettings {
+    // Ticks per shard file before the next one starts.
+    int32 ticks_per_shard = 1 [(min_int) = 500, (default_int) = 1000];
+    // Ticks that can wait for the disk writer; when it is full, ticks are dropped and logged.
+    int32 writer_queue_capacity = 2 [(min_int) = 500, (default_int) = 2000];
+}
+
+message VisionSettings {
+    // Size of the recorded video frames, in pixels.
+    int32 rgb_width = 1 [(min_int) = 2, (default_int) = 640];
+    // Height of the video frames, in pixels.
+    int32 rgb_height = 2 [(min_int) = 2, (default_int) = 360];
+    // Rays across and down for the pass that stops at the first block that blocks sight.
+    int32 non_transparent_ray_grid_width = 3 [(min_int) = 1, (default_int) = 40];
+    // Rays down for that pass.
+    int32 non_transparent_ray_grid_height = 4 [(min_int) = 1, (default_int) = 40];
+    // Rays across and down for the pass that stops at the first visible thing.
+    int32 transparent_ray_grid_width = 5 [(min_int) = 1, (default_int) = 10];
+    // Rays down for that pass.
+    int32 transparent_ray_grid_height = 6 [(min_int) = 1, (default_int) = 10];
+    // Length of each ray, in blocks.
+    float max_ray_distance = 7 [(min_float) = 1.0, (default_float) = 64.0];
+    // 1 spaces the rays evenly; higher values gather them toward the center of the view, lower
+    // values toward its edges.
+    float foveation_exponent = 8 [(min_float) = 0.1, (default_float) = 1.0];
+}
+
+message MetadataSettings {
+    // Free text saved with each episode.
+    string task_description = 1;
+    // Keep the same anonymous user id across game restarts, stored in config/msed_user.id.
+    bool enable_persistent_user_id = 2;
+}
+
+// Which modalities and parts of them are recorded.
+message RecordingSettings {
+    // Videos, ray grids and visible blocks.
+    Vision record_vision = 1 [(collapsible) = true];
+    // Sounds.
+    Hearing record_hearing = 2 [(collapsible) = true];
+    // The player's state.
+    Player record_player = 3 [(collapsible) = true];
+    // The player's slots.
+    Inventory record_inventory = 4 [(collapsible) = true];
+    // The open screen.
+    Gui record_gui = 5 [(collapsible) = true];
+
+    message Vision {
+        // The GUI video: the final image, HUD and open screens included.
+        bool record_gui_world_rgb = 1 [(default_bool) = true];
+        // The world-only video, drawn before the hand and the HUD.
+        bool record_pure_world_rgb = 2 [(default_bool) = true];
+        // The ray grid that sees through glass, leaves, plants and fluids.
+        bool record_non_transparent_ray_matrix = 3 [(default_bool) = true];
+        // The ray grid that stops at the first visible thing.
+        bool record_transparent_ray_matrix = 4 [(default_bool) = true];
+        // The list of distinct blocks any ray hit.
+        bool record_unique_blocks = 5 [(default_bool) = true];
+    }
+
+    message Hearing {
+        // Every sound the game plays.
+        bool record_sounds = 1 [(default_bool) = true];
+    }
+
+    message Player {
+        // Position, velocity, health, armor, experience, on ground, sneaking, sprinting and fall
+        // distance.
+        bool record_core_stats = 1 [(default_bool) = true];
+        // Food, saturation and exhaustion.
+        bool record_hunger = 2 [(default_bool) = true];
+        // Air left under water.
+        bool record_air_supply = 3 [(default_bool) = true];
+        // Pitch and yaw.
+        bool record_rotation = 4 [(default_bool) = true];
+        // Attack charge and attack damage.
+        bool record_combat = 5 [(default_bool) = true];
+        // Light level and time of day.
+        bool record_environment = 6 [(default_bool) = true];
+        // The items in the main hand and the offhand.
+        bool record_equipped = 7 [(default_bool) = true];
+        // The block being mined or targeted.
+        bool record_mining = 8 [(default_bool) = true];
+        // Status effects.
+        bool record_active_effects = 9 [(default_bool) = true];
+        // Entities within 16 blocks.
+        bool record_nearby_entities = 10 [(default_bool) = true];
+    }
+
+    message Inventory {
+        // The 9 hotbar slots.
+        bool record_hotbar = 1 [(default_bool) = true];
+        // The 27 main inventory slots.
+        bool record_main = 2 [(default_bool) = true];
+        // The 4 armor slots.
+        bool record_armor = 3 [(default_bool) = true];
+        // The offhand slot.
+        bool record_offhand = 4 [(default_bool) = true];
+    }
+
+    message Gui {
+        // The open screen, its slots, the cursor item and the hovered slot.
+        bool record_gui_state = 1 [(default_bool) = true];
+    }
+}

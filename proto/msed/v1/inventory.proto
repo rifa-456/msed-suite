@@ -1,0 +1,31 @@
+syntax = "proto3";
+package msed.v1;
+
+import "msed/v1/options.proto";
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// A stack of items. An empty slot is item 0 (air) with count 0.
+message ItemStack {
+    // The item; 0 (air) for an empty slot.
+    int32 item_id = 1 [(vocab) = VOCAB_ITEMS];
+    // Items in the stack; 0 for an empty slot.
+    int32 count = 2;
+    // Durability used: 0 for a new tool, and for items without durability.
+    int32 damage = 3;
+}
+
+// The player's own slots. Each list keeps every slot, empty ones included, in slot order.
+message InventoryState {
+    // The hotbar slot in hand, 0 to 8.
+    int32 selected_slot = 1;
+    // 9 slots, left to right.
+    repeated ItemStack hotbar = 2;
+    // 27 slots, top-left to bottom-right.
+    repeated ItemStack main = 3;
+    // 4 slots: feet, legs, chest, head.
+    repeated ItemStack armor = 4;
+    // 1 slot.
+    repeated ItemStack offhand = 5;
+}

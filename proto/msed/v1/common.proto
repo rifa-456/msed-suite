@@ -1,0 +1,51 @@
+syntax = "proto3";
+package msed.v1;
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// A point or offset in blocks.
+message Vec3 {
+    // East is positive.
+    double x = 1;
+    // Up is positive.
+    double y = 2;
+    // South is positive.
+    double z = 3;
+}
+
+// A block position, or an offset between block positions.
+message Vec3i {
+    // East is positive.
+    int32 x = 1;
+    // Up is positive.
+    int32 y = 2;
+    // South is positive.
+    int32 z = 3;
+}
+
+// The video frame a tick produced.
+message VideoRef {
+    // The video file in the episode folder: "world.mp4" or "gui.mp4".
+    string file_name = 1;
+    // The frame's index in that file, starting at 0. It counts up by one per tick.
+    int64 frame_index = 2;
+}
+
+// A list whose length varies from tick to tick.
+enum ObservationKey {
+    OBSERVATION_KEY_GUI_MAX_SLOTS = 0;
+    OBSERVATION_KEY_GUI_MAX_PROPERTIES = 1;
+    OBSERVATION_KEY_HEARING_MAX_SOUNDS = 2;
+    OBSERVATION_KEY_PLAYER_MAX_EFFECTS = 3;
+    OBSERVATION_KEY_PLAYER_MAX_NEARBY_ENTITIES = 4;
+    OBSERVATION_KEY_VISION_MAX_VISIBLE_BLOCKS = 5;
+}
+
+// The largest length one list reached in any tick of an episode.
+message ObservationStat {
+    // The list measured.
+    ObservationKey key = 1;
+    // Its largest length in any tick.
+    int32 count = 2;
+}

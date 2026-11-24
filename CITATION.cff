@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: If you use MSED, please cite the paper below.
+title: MSED
+abstract: >-
+  A Fabric mod that records Minecraft gameplay as tick-aligned, multi-modal trajectories from
+  inside the game engine, and a Python toolkit that converts them to Parquet.
+type: software
+version: 1.0.0
+license: MIT
+repository-code: https://github.com/rifa-456/msed-suite
+authors:
+  - given-names: Rafael
+    family-names: da Silva Santos
+    affiliation: Universidade Estadual do Ceará
+  - given-names: Ana Luiza Bessa
+    family-names: de Paula Barros
+    affiliation: Universidade Estadual do Ceará
+  - given-names: Gustavo Augusto Lima
+    family-names: de Campos
+    affiliation: Universidade Estadual do Ceará
+preferred-citation:
+  type: conference-paper
+  title: "MSED: Engine-Level Multi-Modal Trajectory Recording for Minecraft"
+  authors:
+    - given-names: Rafael
+      family-names: da Silva Santos
+    - given-names: Ana Luiza Bessa
+      family-names: de Paula Barros
+    - given-names: Gustavo Augusto Lima
+      family-names: de Campos
+  collection-title: 2026 IEEE Conference on Games (CoG)
+  publisher:
+    name: IEEE
+  conference:
+    name: 2026 IEEE Conference on Games (CoG)
+    city: Madrid
+    country: ES
+    date-start: 2026-09-01
+    date-end: 2026-09-04
+  year: 2026
+  start: 1
+  end: 8
+  doi: 10.1109/CoG67430.2026.11778848
+  url: https://ieeexplore.ieee.org/document/11778848

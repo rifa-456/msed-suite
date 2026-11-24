@@ -1,0 +1,116 @@
+syntax = "proto3";
+package msed.v1;
+
+option java_package = "io.github.rifa456.msed.proto.v1";
+option java_multiple_files = true;
+
+// The mouse at the end of the tick. Every individual click is in ActionState.inputs, taps shorter
+// than a tick included.
+message MouseState {
+    // Raw cursor movement (screen pixels) applied to the camera during the tick, summed over
+    // every frame. Zero while a screen is open.
+    float dx = 1;
+    // Vertical cursor movement, as dx; positive moves the view down.
+    float dy = 2;
+    // Whether the attack binding (left click by default) is held.
+    bool attack = 3;
+    // Whether the use binding (right click by default) is held.
+    bool use = 4;
+}
+
+// Whether each gameplay binding is held at the end of the tick, whatever key it is bound to.
+message KeyboardState {
+    // Forward (W by default).
+    bool forward = 1;
+    // Back (S by default).
+    bool back = 2;
+    // Strafe left (A by default).
+    bool left = 3;
+    // Strafe right (D by default).
+    bool right = 4;
+    // Jump (Space by default).
+    bool jump = 5;
+    // Sneak (Shift by default).
+    bool sneak = 6;
+    // Sprint (Control by default).
+    bool sprint = 7;
+    // Drop the selected item (Q by default).
+    bool drop = 8;
+    // Open or close the inventory (E by default).
+    bool inventory = 9;
+    // Swap the main hand and offhand items (F by default).
+    bool swap_hands = 10;
+    // 9 entries, one per hotbar slot binding (keys 1 to 9 by default).
+    repeated bool hotbar_keys = 11;
+}
+
+// GLFW action of a key or mouse button event.
+enum InputAction {
+    INPUT_ACTION_RELEASE = 0;
+    INPUT_ACTION_PRESS = 1;
+    INPUT_ACTION_REPEAT = 2;
+}
+
+// A key press, release or auto-repeat.
+message KeyInput {
+    // GLFW key code: the physical key, named after its place on a US keyboard.
+    int32 key = 1;
+    // Platform scancode of the physical key.
+    int32 scancode = 2;
+    // Press, release or auto-repeat.
+    InputAction action = 3;
+    // GLFW modifier bits: 1 Shift, 2 Control, 4 Alt, 8 Super.
+    int32 modifiers = 4;
+}
+
+// A mouse button press or release.
+message MouseButtonInput {
+    // GLFW button number: 0 left, 1 right, 2 middle.
+    int32 button = 1;
+    // Press or release.
+    InputAction action = 2;
+    // GLFW modifier bits, as for keys.
+    int32 modifiers = 3;
+}
+
+// A scroll wheel movement, in wheel steps; positive dy scrolls up.
+message ScrollInput {
+    // Horizontal wheel steps, from a tilting wheel or a touchpad.
+    double dx = 1;
+    // Vertical wheel steps; positive scrolls up.
+    double dy = 2;
+}
+
+// A character typed into a text field, such as a sign or an anvil. Recorded only while a screen is
+// open.
+message CharInput {
+    // Unicode code point.
+    int32 codepoint = 1;
+    // GLFW modifier bits, as for keys.
+    int32 modifiers = 2;
+}
+
+// One raw input delivered to the game. While recording, inputs without a gameplay effect, such as
+// chat, debug keys, screenshots and the camera perspective key, are blocked and never reach the
+// game.
+message InputEvent {
+    oneof input {
+        // A keyboard key.
+        KeyInput key = 1;
+        // A mouse button.
+        MouseButtonInput mouse_button = 2;
+        // A scroll wheel movement.
+        ScrollInput scroll = 3;
+        // A typed character.
+        CharInput character = 4;
+    }
+}
+
+message ActionState {
+    // Camera movement and the mouse bindings held at the end of the tick.
+    MouseState mouse = 1;
+    // The keyboard bindings held at the end of the tick.
+    KeyboardState keyboard = 2;
+    // Every input delivered to the game since the previous tick, in arrival order.
+    repeated InputEvent inputs = 3;
+}
