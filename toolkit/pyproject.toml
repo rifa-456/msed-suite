@@ -13,11 +13,13 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Rafael da Silva Santos", email = "raf.silva@aluno.uece.br" }]
 requires-python = ">=3.10"
-keywords = ["minecraft", "dataset", "reinforcement-learning", "world-models", "protobuf", "parquet"]
+keywords = [
+    "minecraft", "dataset", "gameplay-recording", "reinforcement-learning", "imitation-learning",
+    "world-models", "embodied-ai", "multimodal", "parquet", "protobuf", "huggingface",
+]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
@@ -35,6 +37,8 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/rifa-456/msed-suite"
 Documentation = "https://msed-suite.readthedocs.io"
+Paper = "https://doi.org/10.1109/CoG67430.2026.11778848"
+Repository = "https://github.com/rifa-456/msed-suite"
 Issues = "https://github.com/rifa-456/msed-suite/issues"
 Changelog = "https://github.com/rifa-456/msed-suite/blob/main/CHANGELOG.md"
 

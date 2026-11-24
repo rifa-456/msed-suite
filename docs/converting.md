@@ -1,3 +1,7 @@
+---
+description: Validate MSED recordings, convert them to a Parquet dataset with the msed command, and publish it on Hugging Face.
+---
+
 # Converting and publishing
 
 The `msed` toolkit checks episode folders and turns them into a Parquet dataset. It runs after

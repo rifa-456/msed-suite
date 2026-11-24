@@ -1,4 +1,7 @@
 ---
+title: Minecraft gameplay datasets
+description: >-
+  Record Minecraft gameplay as tick-aligned, multi-modal datasets: player inputs, game state, events and two videos per tick, converted to Parquet for Hugging Face.
 hide:
   - navigation
   - toc

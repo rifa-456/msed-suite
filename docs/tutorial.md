@@ -1,3 +1,7 @@
+---
+description: Record half a minute of Minecraft, convert it to a Parquet dataset, and find the video frame where a block broke, using pandas and OpenCV.
+---
+
 # Your first dataset
 
 In this tutorial you record half a minute of play, check it, turn it into a dataset, and look

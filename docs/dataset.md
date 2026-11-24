@@ -1,3 +1,8 @@
+---
+description: >-
+  Load an MSED dataset with pandas, Hugging Face datasets or PyArrow: columns, vocabulary ids, video frames, camera poses and ray grids.
+---
+
 # Using a dataset
 
 A converted dataset is plain Parquet, JSON and MP4. Reading it needs no MSED install.

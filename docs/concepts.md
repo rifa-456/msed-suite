@@ -1,3 +1,7 @@
+---
+description: How MSED pairs each Minecraft tick with exactly one video frame, records every player action, and keeps ids stable across recordings.
+---
+
 # How MSED records
 
 MSED runs inside the Minecraft client and reads each modality from the game's own state, at the

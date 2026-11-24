@@ -1,5 +1,5 @@
 site_name: MSED
-site_description: Record Minecraft gameplay as tick-aligned, multi-modal trajectories.
+site_description: Record Minecraft gameplay as tick-aligned, multi-modal datasets.
 # Read the Docs sets the address of the version it builds; pages name it as their canonical one.
 site_url: !ENV [READTHEDOCS_CANONICAL_URL, "https://msed-suite.readthedocs.io/en/latest/"]
 repo_url: https://github.com/rifa-456/msed-suite
@@ -12,6 +12,7 @@ validation:
   anchors: warn
 exclude_docs: |
   hooks/
+  overrides/
   requirements.txt
 
 nav:
@@ -35,6 +36,7 @@ nav:
 
 theme:
   name: material
+  custom_dir: docs/overrides
   logo: assets/icon.svg
   favicon: assets/icon.svg
   font:

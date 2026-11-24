@@ -1,3 +1,8 @@
+---
+description: >-
+  The msed Python API: validate and convert Minecraft recordings, read raw episodes and look up vocabulary ids.
+---
+
 # Python API
 
 ::: msed

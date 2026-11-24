@@ -1,3 +1,7 @@
+---
+description: Install the MSED mod for Minecraft with Fabric and FFmpeg, record gameplay episodes with one key, and see which inputs are blocked while recording.
+---
+
 # Recording
 
 ## Installing
