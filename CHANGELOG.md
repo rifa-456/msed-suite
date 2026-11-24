@@ -4,7 +4,7 @@ All notable changes to the mod, the toolkit and the schema are listed here. The 
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/): the toolkit reads episodes of its own major version.
 
-## [1.0.0] - 2026-11-23
+## [1.0.0] - 2026-11-24
 
 The first release, matching the paper *MSED: Engine-Level Multi-Modal Trajectory Recording for
 Minecraft* (IEEE CoG 2026).
