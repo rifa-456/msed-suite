@@ -19,7 +19,13 @@ updates:
     directory: /toolkit
     schedule:
       interval: monthly
+    ignore:
+      # It decides the oldest protobuf the toolkit runs on, so it is raised by hand, in both folders.
+      - dependency-name: grpcio-tools
   - package-ecosystem: pip
     directory: /docs
     schedule:
       interval: monthly
+    ignore:
+      # It decides the oldest protobuf the toolkit runs on, so it is raised by hand, in both folders.
+      - dependency-name: grpcio-tools
