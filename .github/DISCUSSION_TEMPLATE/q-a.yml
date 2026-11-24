@@ -1,0 +1,32 @@
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What you want to do, what you tried, and what happened.
+    validations:
+      required: true
+  - type: dropdown
+    id: part
+    attributes:
+      label: Part
+      options:
+        - Recording (mod)
+        - Validating or converting (toolkit)
+        - Using a dataset
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: MSED, Minecraft and Fabric Loader for the mod; MSED and Python for the toolkit.
+      placeholder: MSED 1.0.0, Minecraft 1.21.11, Fabric Loader 0.18.4
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs and files
+      description: >-
+        For a recording, the episode's metadata.json and the output of msed validate. metadata.json
+        holds your user id and the world seed; remove them if you do not want them public.
